@@ -10,10 +10,15 @@ var crret = createCanvas(500,500)
 var canvas = crret.canvas
 var ctxt = crret.ctxt
 
-var dragrect = new DragRect(new Rect(new Vector(10,10), new Vector(100,100)))
+var virtualscreen = new DragRect(new Box(new Rect(new Vector(10,10), new Vector(100,100))))
+var uirect = new UIRect(
+    new Rect(new Vector(0,0), new Vector(0,0)),
+    new Rect(new Vector(0,0), new Vector(0,0)),
+    virtualscreen.rect
+)
 
 loop((dt) => {
     ctxt.clearRect(0,0,500,500)
 
-    dragrect.draw(ctxt)
+    virtualscreen.draw(ctxt)
 })
