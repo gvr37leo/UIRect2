@@ -6,22 +6,34 @@ class UIRect{
     readonly absRect:Box<Rect>
     anchorDragRect:DragRect
     offsetDragRect:DragRect
+    listeningforAnchorDrag: boolean = true
 
     constructor(public anchor:Rect, public offset:Rect, public parent:Box<Rect>){
 
-        // this.anchorDragRect = new DragRect(new Box())
+        this.anchorDragRect = new DragRect(new Box(new Rect(new Vector(0,0),new Vector(0,0))))
+        this.offsetDragRect = new DragRect(new Box(new Rect(new Vector(0,0),new Vector(0,0))))
+        this.write2handles()
 
         this.parent.onchange.listen(rect => {
-
+            this.write2handles()
         })
 
         this.anchorDragRect.rect.onchange.listen(rect => {
-
+            if(this.listeningforAnchorDrag){
+                this.readinhandles()
+            }
         })
 
         this.offsetDragRect.rect.onchange.listen(rect => {
-
+            if(this.listeningforAnchorDrag){
+                this.readinhandles()
+            }
         })
+    }
+
+    draw(ctxt:CanvasRenderingContext2D){
+        this.anchorDragRect.draw(ctxt)
+        this.offsetDragRect.draw(ctxt)
     }
 
     readinhandles(){
@@ -30,8 +42,10 @@ class UIRect{
     }
 
     write2handles(){
+        this.listeningforAnchorDrag = false
         this.anchorDragRect.rect.set(UIRect.Rel2Abs(this.parent.value,this.anchor))
         this.offsetDragRect.rect.set(UIRect.LocalOffset2Abs(this.anchorDragRect.rect.value,this.offset))
+        this.listeningforAnchorDrag = true
     }
 
     //returns abschild as a percentage of absparent
