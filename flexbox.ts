@@ -61,27 +61,30 @@ class Flexbox{
         var result:Rect[] = []
         var current = begin.c()
         for(var rect of this.rects){
+            var size = rect.size()
             var start = current.c()
-            var end = start.c().add(rect.size)
+            var end = start.c().add(size)
             result.push(new Rect(start,end))
-            current.x += rect.size.x + skip.x
+            current.x += size.x + skip.x
         }
         return result
     }
 
     calcTopBottom(alignment:Alignment, rect:Rect){
         var bot = 0;
-        var top = this.rect.size.y
+        var size = rect.size()
+
+        var top = this.rect.size().y
         switch(alignment){
             case Alignment.start:{
-                return [bot,rect.size.y];
+                return [bot,size.y];
             }
             case Alignment.end:{
-                return [top - rect.size.y, top];
+                return [top - size.y, top];
             }
             case Alignment.center:{
                 var center = top / 2
-                var halfsize = rect.size.y / 2
+                var halfsize = size.y / 2
                 return [center - halfsize, center + halfsize];
             }
             case Alignment.stretch:{
@@ -91,11 +94,11 @@ class Flexbox{
     }
 
     widthOfBlocks(){
-        return this.rects.reduce((p,c) => p += c.size.x, 0)
+        return this.rects.reduce<number>((p,c) => p += c.size().x, 0)
     }
 
     freespace(widthOfBlocks:number){
-        return this.rect.size.x - widthOfBlocks
+        return this.rect.size().x - widthOfBlocks
     }
 
     freespacePerBlock(){
