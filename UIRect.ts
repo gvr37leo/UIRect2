@@ -3,7 +3,7 @@
 
 class UIRect{
 
-    readonly absRect:Box<Rect>
+    absRect:Box<Rect>
     anchorDragRect:DragRect
     offsetDragRect:DragRect
     isListeningforAnchorDrag: boolean = true
@@ -13,6 +13,7 @@ class UIRect{
         this.anchorDragRect = new DragRect(new Box(new Rect(new Vector(0,0),new Vector(0,0))))
         this.offsetDragRect = new DragRect(new Box(new Rect(new Vector(0,0),new Vector(0,0))))
         this.write2handles()
+        this.absRect = this.offsetDragRect.rect
 
         this.parent.onchange.listen(rect => {
             this.write2handles()
@@ -39,6 +40,7 @@ class UIRect{
     readinhandles(){
         this.anchor = UIRect.Abs2Rel(this.parent.value,this.anchorDragRect.rect.value)
         this.offset = UIRect.Abs2LocalOffset(this.anchorDragRect.rect.value,this.offsetDragRect.rect.value)
+        
     }
 
     write2handles(){

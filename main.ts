@@ -14,16 +14,18 @@ var ctxt = crret.ctxt
 
 var virtualscreen = new DragRect(new Box(new Rect(new Vector(10,10), new Vector(490,490))))
 var uirect = new UIRect(
-    new Rect(new Vector(0,0), new Vector(1,0)),
-    new Rect(new Vector(10,10), new Vector(-10,40)),
+    new Rect(new Vector(0,0), new Vector(0,0)),
+    new Rect(new Vector(0,0), new Vector(50,50)),
     virtualscreen.rect
 )
 
 var uirect2 = new UIRect(
-    new Rect(new Vector(0,0), new Vector(1,1)),
-    new Rect(new Vector(10,60), new Vector(-10,-10)),
+    new Rect(new Vector(0,0), new Vector(0,0)),
+    new Rect(new Vector(0,0), new Vector(50,50)),
     virtualscreen.rect
 )
+
+var flexbox = new Flexbox(virtualscreen.rect,[uirect,uirect2])
 
 loop((dt) => {
     ctxt.clearRect(0,0,500,500)

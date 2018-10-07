@@ -18,63 +18,85 @@ enum Alignment{
 
 class Flexbox{
 
-    public justifyContent:Justification
-    public AlignItems:Alignment
+    public justifyContent:Justification = Justification.start
+    public AlignItems:Alignment = Alignment.center
 
-    constructor(public rect:Rect, public rects:Rect[]){
+    constructor(public rect:Box<Rect>, public rects:UIRect[]){
+        // var zero = new Vector(0,0)
+        // rects.forEach(r => {
+        //     r.anchor.min.overwrite(zero)
+        //     r.anchor.max.overwrite(zero)
+        // })
 
+        this.updateChildren()
+        this.rect.onchange.listen(rect => {
+            this.updateChildren()
+        })
+    }
+
+    updateChildren(){
+        var newPositions = this.positionCenter()
+        for(var i = 0; i < this.rects.length; i++){
+            var rect:UIRect = this.rects[i]
+            var newPosition:Rect = newPositions[i]
+            rect.offset.move(newPosition.min)
+            rect.offset.setSize(newPosition.size())
+            rect.write2handles()
+        }
     }
 
     positionStart(){
-        return this.spaceBlocks(new Vector(0,0),new Vector(0,0))
+        return this.spaceBlocks(0,0)
     }
 
     positionEnd(){
         var freespace = this.freespace(this.widthOfBlocks())
-        return this.spaceBlocks(new Vector(freespace, 0), new Vector(0, 0))
+        return this.spaceBlocks(freespace,0)
     }
 
     positionCenter(){
         var width = this.widthOfBlocks()
-        var center = this.rect.getPoint(new Vector(0.5,0.5))
-        return this.spaceBlocks(new Vector(center.x - width / 2,0), new Vector(0,0))
+        var center = this.rect.value.size().scale(0.5)
+        return this.spaceBlocks(center.x - width / 2,0)
     }
 
     positionBetween(){
         var freespacePerBlock = this.freespacePerBlock()
-        return this.spaceBlocks(new Vector(0,0), new Vector(freespacePerBlock,0))
+        return this.spaceBlocks(0, 0)
     }
 
     positionAround(){
         var freespacePerBlock = this.freespacePerBlock()
-        return this.spaceBlocks(new Vector(freespacePerBlock / 2,0), new Vector(freespacePerBlock,0))
+        return this.spaceBlocks(freespacePerBlock / 2, freespacePerBlock)
     }
 
     positionEvenly(){
         var gaps = this.rects.length + 1;
         var freespace = this.freespace(this.widthOfBlocks());
         var freespacePerGap = freespace / gaps;
-        return this.spaceBlocks(new Vector(freespacePerGap,0), new Vector(freespacePerGap,0));
+        return this.spaceBlocks(freespacePerGap, freespacePerGap);
     }
 
-    spaceBlocks(begin:Vector,skip:Vector){
+    spaceBlocks(begin:number,skip:number):Rect[]{
         var result:Rect[] = []
-        var current = begin.c()
+        var current = begin
+        
         for(var rect of this.rects){
-            var size = rect.size()
-            var start = current.c()
-            var end = start.c().add(size)
-            result.push(new Rect(start,end))
-            current.x += size.x + skip.x
+            var topbottom = this.calcTopBottom(this.AlignItems, rect.absRect.value)
+            var size = rect.absRect.value.size()
+            var start = current
+            var end = start + size.x
+            result.push(new Rect(new Vector(start,topbottom[0]),new Vector(end,topbottom[1])))
+            current += size.x + skip
         }
         return result
     }
 
-    calcTopBottom(alignment:Alignment, rect:Rect){
+    calcTopBottom(alignment:Alignment, rect:Rect):[number,number]{
         var bot = 0;
         var size = rect.size()
 
-        var top = this.rect.size().y
+        var top = this.rect.value.size().y
         switch(alignment){
             case Alignment.start:{
                 return [bot,size.y];
@@ -94,11 +116,11 @@ class Flexbox{
     }
 
     widthOfBlocks(){
-        return this.rects.reduce<number>((p,c) => p += c.size().x, 0)
+        return this.rects.reduce<number>((p,c) => p += c.absRect.value.size().x, 0)
     }
 
     freespace(widthOfBlocks:number){
-        return this.rect.size().x - widthOfBlocks
+        return this.rect.value.size().x - widthOfBlocks
     }
 
     freespacePerBlock(){
